@@ -448,11 +448,11 @@ const scoreDistribution = ref({
 })
 
 const scoreTrendsData = computed(() => ({
-  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+  labels: scoreTrends.value?.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
   datasets: [
     {
       label: 'Average Score',
-      data: scoreTrends.value.avgScores || [0, 0, 0, 0, 0, 0],
+      data: scoreTrends.value?.avgScores || [0, 0, 0, 0, 0, 0],
       borderColor: 'rgb(59, 130, 246)',
       backgroundColor: 'rgba(59, 130, 246, 0.1)',
       tension: 0.4,
@@ -460,7 +460,7 @@ const scoreTrendsData = computed(() => ({
     },
     {
       label: 'New Users',
-      data: scoreTrends.value.newUsers || [0, 0, 0, 0, 0, 0],
+      data: scoreTrends.value?.newUsers || [0, 0, 0, 0, 0, 0],
       borderColor: 'rgb(16, 185, 129)',
       backgroundColor: 'rgba(16, 185, 129, 0.1)',
       tension: 0.4,
@@ -471,8 +471,9 @@ const scoreTrendsData = computed(() => ({
 }))
 
 const scoreTrends = ref({
-  avgScores: [0, 0, 0, 0, 0, 0],
-  newUsers: [0, 0, 0, 0, 0, 0]
+  labels: [],
+  avgScores: [],
+  newUsers: []
 })
 
 const doughnutOptions = computed(() => ({
@@ -533,6 +534,11 @@ const lineOptions = computed(() => ({
 const loadAnalytics = async () => {
   loading.value = true
   try {
+    // Test if getScoreTrends is available
+    console.log('creditStore type:', typeof creditStore)
+    console.log('getScoreTrends available:', typeof creditStore.getScoreTrends)
+    console.log('creditStore methods:', Object.getOwnPropertyNames(creditStore))
+    
     // Fetch analytics data
     const analyticsData = await creditStore.getAnalytics(selectedPeriod.value)
     
@@ -562,6 +568,36 @@ const loadAnalytics = async () => {
         riskAnalysis.value[0].percentage = Math.round((distData.low_risk / total) * 100)
         riskAnalysis.value[1].percentage = Math.round((distData.medium_risk / total) * 100)
         riskAnalysis.value[2].percentage = Math.round((distData.high_risk / total) * 100)
+      }
+    }
+
+    // Fetch score trends
+    console.log('About to call getScoreTrends, creditStore methods:', Object.keys(creditStore))
+    
+    // Check if method exists, if not, use direct API call
+    if (typeof creditStore.getScoreTrends === 'function') {
+      const trendsData = await creditStore.getScoreTrends(selectedPeriod.value)
+      if (trendsData) {
+        scoreTrends.value = {
+          labels: trendsData.labels || [],
+          avgScores: trendsData.avgScores || [],
+          newUsers: trendsData.newUsers || []
+        }
+      }
+    } else {
+      // Fallback: direct API call
+      try {
+        const response = await api.get(`/analytics/score-trends?period=${selectedPeriod.value}`)
+        const trendsData = response.data
+        if (trendsData) {
+          scoreTrends.value = {
+            labels: trendsData.labels || [],
+            avgScores: trendsData.avgScores || [],
+            newUsers: trendsData.newUsers || []
+          }
+        }
+      } catch (error) {
+        console.error('Fallback score trends call failed:', error)
       }
     }
 

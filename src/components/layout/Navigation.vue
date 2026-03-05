@@ -45,10 +45,23 @@
               class="absolute right-0 mt-2 w-48 glass-effect rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 animate-slide-down"
             >
               <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Admin User</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">admin@creditscore.com</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ authStore.user?.full_name || 'User' }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ authStore.user?.email }}</p>
+                <div class="mt-1">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200">
+                    {{ authStore.user?.role || 'viewer' }}
+                  </span>
+                </div>
               </div>
               <div class="p-2">
+                <router-link
+                  to="/profile"
+                  class="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  @click="closeUserMenu"
+                >
+                  <User class="w-4 h-4" />
+                  <span>Profile</span>
+                </router-link>
                 <button
                   @click="logout"
                   class="w-full flex items-center space-x-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
@@ -94,15 +107,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import { getNavigationItems } from '@/utils/permissions'
 import {
   TrendingUp,
   LayoutDashboard,
-  Users,
   BarChart3,
+  Users,
+  Calculator,
+  Upload,
+  FileText,
+  Shield,
   Settings,
   User,
   ChevronDown,
@@ -115,12 +133,34 @@ const authStore = useAuthStore()
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Users', href: '/users', icon: Users },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Settings', href: '/settings', icon: Settings }
-]
+// Dynamic navigation based on user role
+const navigation = computed(() => {
+  const userRole = authStore.userRole
+  const items = getNavigationItems(userRole)
+  
+  // Map items to navigation format
+  return items.map(item => ({
+    name: item.name,
+    href: item.path,
+    icon: getIconComponent(item.icon)
+  }))
+})
+
+// Icon mapping
+const getIconComponent = (iconName) => {
+  const iconMap = {
+    'chart-bar': LayoutDashboard,
+    'chart-line': BarChart3,
+    'users': Users,
+    'calculator': Calculator,
+    'document-upload': Upload,
+    'upload': FileText,
+    'user-shield': Shield,
+    'shield': Shield,
+    'settings': Settings
+  }
+  return iconMap[iconName] || LayoutDashboard
+}
 
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
@@ -132,6 +172,10 @@ const toggleMobileMenu = () => {
 
 const closeMobileMenu = () => {
   showMobileMenu.value = false
+}
+
+const closeUserMenu = () => {
+  showUserMenu.value = false
 }
 
 onMounted(() => {
@@ -156,18 +200,76 @@ onUnmounted(() => {
 
 <style scoped>
 .nav-link {
-  @apply flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-lg transition-all duration-200 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700;
+  display: flex;
+  align-items: center;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.nav-link:hover {
+  color: #111827;
+  background-color: #f3f4f6;
 }
 
 .nav-link-active {
-  @apply text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30;
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+.dark .nav-link {
+  color: #d1d5db;
+}
+
+.dark .nav-link:hover {
+  color: #f3f4f6;
+  background-color: #374151;
+}
+
+.dark .nav-link-active {
+  color: #60a5fa;
+  background-color: rgba(37, 99, 235, 0.3);
 }
 
 .mobile-nav-link {
-  @apply flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 rounded-lg transition-all duration-200 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700;
+  display: flex;
+  align-items: center;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.mobile-nav-link:hover {
+  color: #111827;
+  background-color: #f3f4f6;
 }
 
 .mobile-nav-link-active {
-  @apply text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30;
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+.dark .mobile-nav-link {
+  color: #d1d5db;
+}
+
+.dark .mobile-nav-link:hover {
+  color: #f3f4f6;
+  background-color: #374151;
+}
+
+.dark .mobile-nav-link-active {
+  color: #60a5fa;
+  background-color: rgba(37, 99, 235, 0.3);
 }
 </style>

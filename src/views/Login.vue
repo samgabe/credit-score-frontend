@@ -163,31 +163,15 @@ const handleLogin = async () => {
 
   loading.value = true
   try {
-    // Call real authentication API
-    const response = await api.post('/auth/login', {
+    // Call new system authentication API
+    const response = await authStore.login({
       email: form.email,
       password: form.password
     })
     
-    console.log('Login response:', response.data)
+    console.log('Login response:', response)
     
-    // Check if response has expected structure
-    if (!response.data) {
-      throw new Error('No response data from server')
-    }
-    
-    if (!response.data.access_token) {
-      throw new Error('No access token in response')
-    }
-    
-    if (!response.data.user) {
-      console.error('Missing user object in response:', response.data)
-      throw new Error('No user data in response')
-    }
-    
-    // Store token and user data
-    authStore.login(response.data.access_token, response.data.user)
-    notificationStore.success('Success', `Welcome back, ${response.data.user.fullname}!`)
+    notificationStore.success('Success', `Welcome back, ${response.user.full_name}!`)
     router.push('/')
   } catch (error) {
     console.error('Login error:', error)
@@ -198,7 +182,7 @@ const handleLogin = async () => {
     } else if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
       notificationStore.error('Error', 'Cannot connect to server. Please check if backend is running.')
     } else {
-      notificationStore.error('Error', error.message || 'Login failed. Please try again.')
+      notificationStore.error('Error', 'An unexpected error occurred. Please try again.')
     }
   } finally {
     loading.value = false

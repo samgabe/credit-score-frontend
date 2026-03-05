@@ -170,6 +170,23 @@ export const useCreditStore = defineStore('credit', () => {
     }
   }
 
+  const getScoreTrends = async (period = '30d') => {
+    console.log('getScoreTrends called with period:', period)
+    loading.value = true
+    error.value = null
+    try {
+      const response = await api.get(`/analytics/score-trends?period=${period}`)
+      console.log('getScoreTrends response:', response.data)
+      return response.data
+    } catch (err) {
+      console.error('getScoreTrends error:', err)
+      error.value = err.response?.data?.message || 'Failed to fetch score trends'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   const getUserActivity = async (userId) => {
     loading.value = true
     error.value = null
@@ -199,6 +216,7 @@ export const useCreditStore = defineStore('credit', () => {
     getScoreDistribution,
     getTopPerformers,
     getRecentActivity,
+    getScoreTrends,
     getUserActivity
   }
 })
