@@ -98,10 +98,13 @@ export function canAccessRoute(userRole, routeName) {
   const routePermissions = {
     'dashboard': PERMISSIONS.VIEW_ANALYTICS,
     'analytics': PERMISSIONS.VIEW_ANALYTICS,
-    'credit-subjects': PERMISSIONS.VIEW_CREDIT_SUBJECTS,
+    'clients': PERMISSIONS.VIEW_CREDIT_SUBJECTS,
+    'client-detail': PERMISSIONS.VIEW_CREDIT_SUBJECTS,
+    'credit-subjects': PERMISSIONS.VIEW_CREDIT_SUBJECTS, // Legacy redirect
     'credit-scores': PERMISSIONS.VIEW_CREDIT_SCORES,
     'csv-upload': PERMISSIONS.UPLOAD_CSV,
     'system-users': PERMISSIONS.VIEW_SYSTEM_USERS,
+    'users': PERMISSIONS.VIEW_SYSTEM_USERS, // System operators
     'profile': null // Everyone can access their profile
   };
 
@@ -131,13 +134,13 @@ export function getNavigationItems(userRole) {
       permission: PERMISSIONS.VIEW_ANALYTICS
     },
     {
-      name: 'Credit Subjects',
-      path: '/credit-subjects',
+      name: 'Clients',
+      path: '/clients',
       icon: 'users',
       permission: PERMISSIONS.VIEW_CREDIT_SUBJECTS
     },
     {
-      name: 'Credit Scores',
+      name: 'Scores',
       path: '/credit-scores',
       icon: 'calculator',
       permission: PERMISSIONS.VIEW_CREDIT_SCORES
@@ -149,7 +152,7 @@ export function getNavigationItems(userRole) {
       permission: PERMISSIONS.UPLOAD_CSV
     },
     {
-      name: 'M-Pesa Statement',
+      name: 'M-Pesa',
       path: '/mpesa-statement/upload',
       icon: 'upload',
       permission: PERMISSIONS.UPLOAD_STATEMENTS

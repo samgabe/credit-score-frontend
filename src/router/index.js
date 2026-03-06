@@ -34,14 +34,14 @@ const router = createRouter({
       meta: { requiresAuth: true, permission: 'view_analytics' }
     },
     {
-      path: '/credit-subjects',
-      name: 'CreditSubjects',
+      path: '/clients',
+      name: 'Clients',
       component: () => import('@/views/CreditSubjects.vue'),
       meta: { requiresAuth: true, permission: 'view_credit_subjects' }
     },
     {
-      path: '/credit-subjects/:id',
-      name: 'CreditSubjectDetail',
+      path: '/clients/:id',
+      name: 'ClientDetail',
       component: () => import('@/views/CreditSubjectDetail.vue'),
       meta: { requiresAuth: true, permission: 'view_credit_subjects' }
     },
@@ -64,23 +64,31 @@ const router = createRouter({
       meta: { requiresAuth: true, permission: 'view_system_users' }
     },
     {
-      path: '/profile',
-      name: 'Profile',
-      component: () => import('@/views/Profile.vue'),
-      meta: { requiresAuth: true }
-    },
-    // Legacy routes - will be deprecated
-    {
       path: '/users',
       name: 'Users',
       component: () => import('@/views/Users.vue'),
-      meta: { requiresAuth: true, permission: 'view_credit_subjects' } // Map to credit subjects
+      meta: { requiresAuth: true, permission: 'view_system_users' } // System operators, not clients
     },
     {
       path: '/users/:id',
       name: 'UserDetail',
       component: () => import('@/views/UserDetail.vue'),
-      meta: { requiresAuth: true, permission: 'view_credit_subjects' } // Map to credit subjects
+      meta: { requiresAuth: true, permission: 'view_system_users' } // System operators
+    },
+    // Legacy routes for backward compatibility
+    {
+      path: '/credit-subjects',
+      redirect: '/clients'
+    },
+    {
+      path: '/credit-subjects/:id',
+      redirect: to => `/clients/${to.params.id}`
+    },
+    {
+      path: '/profile',
+      name: 'Profile',
+      component: () => import('@/views/Profile.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/credit-score/calculate',

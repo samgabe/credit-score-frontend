@@ -1,8 +1,8 @@
 <template>
   <div class="p-6">
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Credit Subjects</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-2">Manage credit subjects and their information</p>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Clients</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-2">Manage clients and their information</p>
     </div>
 
     <!-- Search and Filters -->
@@ -21,12 +21,12 @@
           class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
         >
           <Plus class="w-4 h-4 mr-2" />
-          Add Credit Subject
+          Add Client
         </button>
       </div>
     </div>
 
-    <!-- Credit Subjects Table -->
+    <!-- Clients Table -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full">
@@ -57,7 +57,7 @@
             </tr>
             <tr v-else-if="filteredSubjects.length === 0">
               <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                No credit subjects found
+                No clients found
               </td>
             </tr>
             <tr v-for="subject in filteredSubjects" :key="subject.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -76,7 +76,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 <div class="flex space-x-2">
                   <router-link
-                    :to="`/credit-subjects/${subject.id}`"
+                    :to="`/clients/${subject.id}`"
                     class="text-primary-600 dark:text-primary-400 hover:text-primary-900"
                   >
                     <Eye class="w-4 h-4" />
@@ -98,7 +98,7 @@
     <!-- Create Modal -->
     <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Add Credit Subject</h2>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Add Client</h2>
         <form @submit.prevent="createCreditSubject" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
@@ -161,7 +161,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { Plus, Eye, Calculator } from 'lucide-vue-next'
 import api from '@/utils/api'
+import { useCreditStore } from '@/stores/credit'
 
+const creditStore = useCreditStore()
 const loading = ref(false)
 const searchQuery = ref('')
 const showCreateModal = ref(false)
@@ -175,10 +177,10 @@ const createForm = ref({
 })
 
 const filteredSubjects = computed(() => {
-  if (!searchQuery.value) return creditSubjects.value
+  if (!searchQuery.value) return creditStore.clients || []
   
   const query = searchQuery.value.toLowerCase()
-  return creditSubjects.value.filter(subject => 
+  return (creditStore.clients || []).filter(subject => 
     subject.full_name.toLowerCase().includes(query) ||
     subject.email.toLowerCase().includes(query) ||
     subject.national_id.toLowerCase().includes(query) ||
@@ -186,13 +188,13 @@ const filteredSubjects = computed(() => {
   )
 })
 
-const fetchCreditSubjects = async () => {
+const fetchClients = async () => {
   loading.value = true
   try {
     const response = await api.get('/credit-subjects')
-    creditSubjects.value = response.data
+    creditStore.clients = response.data
   } catch (error) {
-    console.error('Error fetching credit subjects:', error)
+    console.error('Error fetching clients:', error)
   } finally {
     loading.value = false
   }
@@ -208,13 +210,13 @@ const createCreditSubject = async () => {
       national_id: '',
       phone_number: ''
     }
-    await fetchCreditSubjects()
+    await fetchClients()
   } catch (error) {
-    console.error('Error creating credit subject:', error)
+    console.error('Error creating client:', error)
   }
 }
 
 onMounted(() => {
-  fetchCreditSubjects()
+  fetchClients()
 })
 </script>

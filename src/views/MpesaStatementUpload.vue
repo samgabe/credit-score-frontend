@@ -2,16 +2,16 @@
   <div class="mpesa-statement-upload">
     <div class="container mx-auto px-4 py-8">
       <div class="max-w-2xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Upload M-Pesa Statement</h1>
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-6">Upload M-Pesa Statement</h1>
         
         <!-- Credit Subject Selection -->
         <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Select Credit Subject
           </label>
           <select 
             v-model="selectedCreditSubject" 
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             :disabled="loading"
           >
             <option value="">Choose a credit subject...</option>
@@ -27,22 +27,22 @@
 
         <!-- File Upload Area -->
         <div 
-          class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors"
-          :class="{ 'border-blue-500 bg-blue-50': isDragging }"
+          class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-blue-400 transition-colors"
+          :class="{ 'border-blue-500 bg-blue-50 dark:bg-blue-900/20': isDragging }"
           @dragover.prevent="isDragging = true"
           @dragleave.prevent="isDragging = false"
           @drop.prevent="handleDrop"
         >
-          <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
           </svg>
           
           <div class="mb-4">
-            <p class="text-lg text-gray-600 mb-2">
+            <p class="text-lg text-gray-600 dark:text-gray-300 mb-2">
               Drag and drop your M-Pesa statement PDF here, or
             </p>
             <button 
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
               @click="$refs.fileInput.click()"
               :disabled="loading"
             >
@@ -58,25 +58,25 @@
             @change="handleFileSelect"
           />
           
-          <p class="text-sm text-gray-500">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
             Only PDF files are supported. Maximum file size: 10MB
           </p>
         </div>
 
         <!-- Selected File -->
-        <div v-if="selectedFile" class="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div v-if="selectedFile" class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <div class="flex items-center justify-between">
             <div class="flex items-center">
               <svg class="h-8 w-8 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
               <div>
-                <p class="font-medium text-gray-900">{{ selectedFile.name }}</p>
-                <p class="text-sm text-gray-500">{{ formatFileSize(selectedFile.size) }}</p>
+                <p class="font-medium text-gray-900 dark:text-gray-100">{{ selectedFile.name }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatFileSize(selectedFile.size) }}</p>
               </div>
             </div>
             <button 
-              class="text-red-600 hover:text-red-800"
+              class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-600"
               @click="removeFile"
               :disabled="loading"
             >
@@ -88,7 +88,7 @@
         <!-- Upload Button -->
         <div class="mt-6">
           <button 
-            class="w-full py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            class="w-full py-3 bg-green-600 dark:bg-green-500 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             @click="uploadStatement"
             :disabled="!selectedFile || !selectedCreditSubject || loading"
           >
@@ -105,9 +105,9 @@
 
         <!-- Results -->
         <div v-if="uploadResult" class="mt-6">
-          <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-            <h3 class="text-lg font-semibold text-green-800 mb-2">Upload Successful!</h3>
-            <div class="space-y-2 text-sm text-green-700">
+          <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">Upload Successful!</h3>
+            <div class="space-y-2 text-sm text-green-700 dark:text-green-300">
               <p><strong>Statement ID:</strong> {{ uploadResult.statement_id }}</p>
               <p><strong>Customer Name:</strong> {{ uploadResult.statement_summary.customer_name }}</p>
               <p><strong>Mobile Number:</strong> {{ uploadResult.statement_summary.mobile_number }}</p>
@@ -118,12 +118,12 @@
             </div>
             
             <!-- New Credit Score -->
-            <div v-if="uploadResult.new_credit_score" class="mt-4 pt-4 border-t border-green-200">
-              <h4 class="font-semibold text-green-800 mb-2">Updated Credit Score</h4>
-              <div class="bg-white rounded p-3">
+            <div v-if="uploadResult.new_credit_score" class="mt-4 pt-4 border-t border-green-200 dark:border-green-700">
+              <h4 class="font-semibold text-green-800 dark:text-green-200 mb-2">Updated Credit Score</h4>
+              <div class="bg-white dark:bg-gray-800 rounded p-3">
                 <div class="flex justify-between items-center">
-                  <span class="text-2xl font-bold text-green-600">{{ uploadResult.new_credit_score.score }}</span>
-                  <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                  <span class="text-2xl font-bold text-green-600 dark:text-green-400">{{ uploadResult.new_credit_score.score }}</span>
+                  <span class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm">
                     {{ uploadResult.new_credit_score.category }}
                   </span>
                 </div>
@@ -133,9 +133,9 @@
         </div>
 
         <!-- Error Message -->
-        <div v-if="error" class="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
-          <h3 class="text-lg font-semibold text-red-800 mb-2">Error</h3>
-          <p class="text-red-700">{{ error }}</p>
+        <div v-if="error" class="mt-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <h3 class="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">Error</h3>
+          <p class="text-red-700 dark:text-red-300">{{ error }}</p>
         </div>
       </div>
     </div>
@@ -276,6 +276,10 @@ export default {
 .mpesa-statement-upload {
   min-height: 100vh;
   background-color: #f9fafb;
+}
+
+.dark .mpesa-statement-upload {
+  background-color: #111827;
 }
 
 .container {

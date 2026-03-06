@@ -3,7 +3,8 @@ import { ref } from 'vue'
 import api from '@/utils/api'
 
 export const useCreditStore = defineStore('credit', () => {
-  const users = ref([])
+  const users = ref([])  // System users (for admin functionality)
+  const clients = ref([])  // Credit subjects (for scoring) - renamed to "clients"
   const currentUser = ref(null)
   const creditScores = ref([])
   const loading = ref(false)
@@ -38,6 +39,40 @@ export const useCreditStore = defineStore('credit', () => {
       users.value = usersWithScores
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch users'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchClients = async () => {
+    loading.value = true
+    error.value = null
+    try {
+      const response = await api.get('/credit-subjects')
+      const subjectsData = response.data
+
+      // Fetch credit scores for each client
+      const clientsWithScores = await Promise.all(
+        subjectsData.map(async (subject) => {
+          try {
+            const scoreResponse = await api.get(`/credit-subjects/${subject.id}/credit-score`)
+            return {
+              ...subject,
+              creditScore: scoreResponse.data
+            }
+          } catch (scoreError) {
+            // Client doesn't have a credit score yet
+            return {
+              ...subject,
+              creditScore: null
+            }
+          }
+        })
+      )
+
+      clients.value = clientsWithScores
+    } catch (err) {
+      error.value = err.response?.data?.message || 'Failed to fetch clients'
     } finally {
       loading.value = false
     }
@@ -203,11 +238,13 @@ export const useCreditStore = defineStore('credit', () => {
 
   return {
     users,
+    clients,
     currentUser,
     creditScores,
     loading,
     error,
     fetchUsers,
+    fetchClients,
     fetchUser,
     calculateCreditScore,
     getCreditScore,
